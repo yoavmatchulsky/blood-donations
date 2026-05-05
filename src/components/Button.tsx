@@ -17,68 +17,37 @@ export const Button: React.FC<ButtonProps> = ({
   disabled = false,
   type = 'button',
 }) => {
-  const baseStyles: React.CSSProperties = {
-    border: 'none',
-    borderRadius: '6px',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    fontFamily: 'inherit',
-    fontWeight: '500',
-    opacity: disabled ? 0.6 : 1,
-    transition: 'background-color 0.2s ease, transform 0.1s ease',
+  const baseClasses = 'border-0 rounded-md font-medium transition-all duration-200 ease-in-out active:translate-y-0.5';
+
+  const variantClasses = {
+    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
+    secondary: 'bg-gray-600 hover:bg-gray-700 text-white',
+    danger: 'bg-red-600 hover:bg-red-700 text-white',
   };
 
-  const variantStyles: Record<string, React.CSSProperties> = {
-    primary: {
-      backgroundColor: '#007bff',
-      color: 'white',
-    },
-    secondary: {
-      backgroundColor: '#6c757d',
-      color: 'white',
-    },
-    danger: {
-      backgroundColor: '#dc3545',
-      color: 'white',
-    },
+  const sizeClasses = {
+    small: 'px-3 py-1.5 text-sm',
+    medium: 'px-4 py-2 text-base',
+    large: 'px-6 py-3 text-lg',
   };
 
-  const sizeStyles: Record<string, React.CSSProperties> = {
-    small: {
-      padding: '0.375rem 0.75rem',
-      fontSize: '0.875rem',
-    },
-    medium: {
-      padding: '0.5rem 1rem',
-      fontSize: '1rem',
-    },
-    large: {
-      padding: '0.75rem 1.5rem',
-      fontSize: '1.125rem',
-    },
-  };
+  const disabledClasses = disabled
+    ? 'opacity-60 cursor-not-allowed'
+    : 'cursor-pointer';
 
-  const combinedStyles = {
-    ...baseStyles,
-    ...variantStyles[variant],
-    ...sizeStyles[size],
-  };
+  const className = [
+    baseClasses,
+    variantClasses[variant],
+    sizeClasses[size],
+    disabledClasses,
+  ].join(' ');
 
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      style={combinedStyles}
-      onMouseDown={(e) => {
-        if (!disabled) {
-          e.currentTarget.style.transform = 'translateY(1px)';
-        }
-      }}
-      onMouseUp={(e) => {
-        if (!disabled) {
-          e.currentTarget.style.transform = 'translateY(0)';
-        }
-      }}
+      className={className}
     >
       {children}
     </button>
