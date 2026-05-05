@@ -53,8 +53,16 @@ export const Home: React.FC = () => {
         )}
       </main>
 
-      <footer className="text-center py-6 text-sm text-gray-400">
-        מד"א - מגן דוד אדום
+      <footer className="text-center py-6 text-xs text-gray-400 space-y-1">
+        <div className="mb-2">
+          <p>הנתונים מוצגים כפי שנלקחו ממד"א ואינם בבעלות מפעילי האתר.</p>
+          <p>השימוש באתר הוא על אחריות המשתמש בלבד.</p>
+        </div>
+        <div>
+          <a href="https://www.mdais.org/blood-donation" target="_blank" rel="noopener noreferrer" className="hover:text-red-600">מד"א - מגן דוד אדום</a>
+          <span className="mx-2">|</span>
+          <a href="https://yoavi.codes/" target="_blank" rel="noopener noreferrer" className="hover:text-red-600">יואבי</a>
+        </div>
       </footer>
     </div>
   );
