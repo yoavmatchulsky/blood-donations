@@ -1,127 +1,61 @@
-import React, { useState } from 'react';
-import { Header, Button, UserCard } from '../components';
-import type { User } from '../types';
-import { useLocalStorage } from '../hooks';
-import { generateId, isValidEmail } from '../utils';
+import React from 'react';
+import { useBloodDonations } from '../hooks';
+import { BloodDonationsTable } from '../components/BloodDonationsTable';
 
 export const Home: React.FC = () => {
-  const [users, setUsers] = useLocalStorage<User[]>('users', [
-    { id: '1', name: 'John Doe', email: 'john@example.com' },
-    { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
-  ]);
-
-  const [currentUser] = useState<User>({
-    id: generateId(),
-    name: 'Demo User',
-    email: 'demo@example.com',
-  });
-
-  const [newUserName, setNewUserName] = useState('');
-  const [newUserEmail, setNewUserEmail] = useState('');
-
-  const handleAddUser = () => {
-    if (newUserName && newUserEmail && isValidEmail(newUserEmail)) {
-      const newUser: User = {
-        id: generateId(),
-        name: newUserName,
-        email: newUserEmail,
-      };
-      setUsers([...users, newUser]);
-      setNewUserName('');
-      setNewUserEmail('');
-    } else {
-      alert('Please enter valid name and email');
-    }
-  };
-
-  const handleDeleteUser = (userId: string) => {
-    setUsers(users.filter((user) => user.id !== userId));
-  };
-
-  const handleEditUser = (user: User) => {
-    const newName = prompt('Enter new name:', user.name);
-    const newEmail = prompt('Enter new email:', user.email);
-
-    if (newName && newEmail && isValidEmail(newEmail)) {
-      setUsers(
-        users.map((u) =>
-          u.id === user.id ? { ...u, name: newName, email: newEmail } : u
-        )
-      );
-    }
-  };
-
-  const handleLogout = () => {
-    alert('Logout clicked!');
-  };
+  const { data, loading, error, refetch } = useBloodDonations();
 
   return (
-    <div>
-      <Header
-        title="Blood Donations App"
-        user={currentUser}
-        onLogout={handleLogout}
-      />
-      <main style={mainStyles}>
-        <section style={sectionStyles}>
-          <h2>Add New User</h2>
-          <div style={formStyles}>
-            <input
-              type="text"
-              placeholder="Name"
-              value={newUserName}
-              onChange={(e) => setNewUserName(e.target.value)}
-              style={inputStyles}
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={newUserEmail}
-              onChange={(e) => setNewUserEmail(e.target.value)}
-              style={inputStyles}
-            />
-            <Button onClick={handleAddUser}>Add User</Button>
-          </div>
-        </section>
+    <div className="min-h-screen w-full bg-gradient-to-b from-rose-50 to-white" dir="rtl">
+      {/* Header */}
+      <header className="sticky top-0 z-20 bg-gradient-to-l from-red-700 to-red-600 text-white shadow-lg">
+        <div className="container mx-auto px-4 py-6 flex items-center justify-center gap-3">
+          <span className="text-3xl">🩸</span>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+            עמדות תרומת דם
+          </h1>
+        </div>
+      </header>
 
-        <section style={sectionStyles}>
-          <h2>Users ({users.length})</h2>
-          <div>
-            {users.map((user) => (
-              <UserCard
-                key={user.id}
-                user={user}
-                onEdit={handleEditUser}
-                onDelete={handleDeleteUser}
-              />
-            ))}
+      <main className="container mx-auto px-4 py-8 max-w-5xl">
+        {loading && (
+          <div className="text-center py-16">
+            <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-red-200 border-t-red-600"></div>
+            <p className="mt-4 text-gray-500 text-lg">טוען נתונים...</p>
           </div>
-        </section>
+        )}
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-xl mb-6 shadow-sm">
+            <p className="font-bold text-lg">שגיאה</p>
+            <p className="mt-1">{error}</p>
+            <button
+              onClick={refetch}
+              className="mt-3 bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
+            >
+              נסה שוב
+            </button>
+          </div>
+        )}
+
+        {data && <BloodDonationsTable data={data} />}
+
+        {!loading && !error && !data && (
+          <div className="text-center py-16">
+            <p className="text-gray-500 text-lg">אין נתונים זמינים</p>
+            <button
+              onClick={refetch}
+              className="mt-4 bg-red-600 text-white px-6 py-2.5 rounded-lg hover:bg-red-700 transition-colors font-medium"
+            >
+              טען נתונים
+            </button>
+          </div>
+        )}
       </main>
+
+      <footer className="text-center py-6 text-sm text-gray-400">
+        מד"א - מגן דוד אדום
+      </footer>
     </div>
   );
-};
-
-const mainStyles: React.CSSProperties = {
-  padding: '2rem',
-  maxWidth: '800px',
-  margin: '0 auto',
-};
-
-const sectionStyles: React.CSSProperties = {
-  marginBottom: '2rem',
-};
-
-const formStyles: React.CSSProperties = {
-  display: 'flex',
-  gap: '1rem',
-  alignItems: 'center',
-  marginBottom: '1rem',
-};
-
-const inputStyles: React.CSSProperties = {
-  padding: '0.5rem',
-  border: '1px solid #ced4da',
-  borderRadius: '4px',
-  fontSize: '1rem',
 };
