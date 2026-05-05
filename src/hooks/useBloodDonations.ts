@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export const useBloodDonations = () => {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +20,7 @@ export const useBloodDonations = () => {
         RequestData: ""
       };
 
-      const response = await fetch('http://localhost:3002/api/blood-donations', {
+      const response = await fetch('/api/blood-donations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

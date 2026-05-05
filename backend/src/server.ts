@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import { bloodDonationsRouter } from './routes/bloodDonations';
 
 dotenv.config();
-
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -16,8 +16,10 @@ app.use(cors({
 }));
 app.use(express.json());
 
+const BASE_PATH = process.env.BASE_PATH || '';
+
 // Routes
-app.use('/api/blood-donations', bloodDonationsRouter);
+app.use(`${BASE_PATH}/api/blood-donations`, bloodDonationsRouter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -33,10 +35,20 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
-});
+// Serve static frontend files in production
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.resolve(__dirname, '../../dist');
+  app.use(`${BASE_PATH}/`, express.static(distPath));
+
+  app.get(`${BASE_PATH}/*`, (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  // 404 handler for non-production
+  app.use('*', (req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`🚀 Backend server running on port ${PORT}`);
