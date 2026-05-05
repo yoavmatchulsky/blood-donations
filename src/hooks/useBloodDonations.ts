@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export const useBloodDonations = () => {
-  const [data, setData] = useState<unknown>(null);
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
