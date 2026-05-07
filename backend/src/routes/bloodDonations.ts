@@ -37,16 +37,20 @@ router.post('/', async (req, res) => {
     console.log('🩸 Proxying request to MDA API...');
     console.log('📤 Request payload:', JSON.stringify(requestPayload, null, 2));
 
+    const data = JSON.stringify(requestPayload);
     const response = await axios('https://www.mdais.org/umbraco/api/invoker/execute', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': 'Mozilla/5.0 (compatible; BloodDonationsApp/1.0)',
-        'Accept': 'application/json',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Encoding': 'gzip, deflate, br, zstd',
+        'Content-Length': data.length,
+        'Origin': 'https://www.mdais.org',
         'Host': 'www.mdais.org',
         'referer': 'https://www.mdais.org/blood-donation',
       },
-      data: JSON.stringify(requestPayload),
+      data,
     });
 
     console.log('📥 MDA API Response Status:', response.status);
@@ -56,10 +60,10 @@ router.post('/', async (req, res) => {
       throw new Error(`MDA API error: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.data as BloodDonationResponse;
+    const responseData = await response.data as BloodDonationResponse;
     console.log('✅ Successfully received data from MDA API');
     
-    const donations = JSON.parse(data.Result);
+    const donations = JSON.parse(responseData.Result);
     res.json({
       success: true,
       data: donations,
