@@ -1,87 +1,61 @@
 import express from 'express';
+import { readCache, isCacheStale } from '../cache';
+import { scrapeBloodDonations } from '../scraper';
 
 const router = express.Router();
 
-// Interface for the MDA API request
-interface BloodDonationRequest {
-  RequestHeader: {
-    Application: number;
-    Module: string;
-    Function: string;
-    Token: string;
-  };
-  RequestData: string;
-}
-
-interface BloodDonationResponse {
-  Result: string;
-  Success: boolean;
-  ErrorCode: string | null;
-  ErrorMsg: string | null;
-}
-
-// Proxy endpoint for MDA blood donations API
 router.post('/', async (req, res) => {
+  const cache = readCache();
+
+  if (cache && !isCacheStale()) {
+    return res.json({ success: true, data: cache.data, timestamp: cache.timestamp });
+  }
+
+  if (cache) {
+    // Stale: serve immediately, refresh in the background
+    scrapeBloodDonations().catch((err) => console.error('Background scrape failed:', err));
+    return res.json({ success: true, data: cache.data, timestamp: cache.timestamp, stale: true });
+  }
+
+  // No cache yet — block until first scrape completes
   try {
-    const requestPayload: BloodDonationRequest = {
-      RequestHeader: {
-        Application: 101,
-        Module: "BloodBank",
-        Function: "GetAllDetailsDonations",
-        Token: ""
-      },
-      RequestData: ""
-    };
-
-    console.log('🩸 Proxying request to MDA API...');
-    console.log('📤 Request payload:', JSON.stringify(requestPayload, null, 2));
-
-    const response = await globalThis.fetch('https://www.mdais.org/umbraco/api/invoker/execute', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (compatible; BloodDonationsApp/1.0)',
-        'Accept': 'application/json',
-        'Host': 'www.mdais.org',
-        'referer': 'https://www.mdais.org/blood-donation',
-      },
-      body: JSON.stringify(requestPayload),
-    });
-
-    console.log('📥 MDA API Response Status:', response.status);
-    // console.log('📥 MDA API Response Headers:', Object.fromEntries(response.headers.entries()));
-
-    if (!response.ok) {
-      throw new Error(`MDA API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json() as BloodDonationResponse;
-    console.log('✅ Successfully received data from MDA API');
-    
-    const donations = JSON.parse(data.Result);
-    res.json({
-      success: true,
-      data: donations,
-      timestamp: new Date().toISOString()
-    });
-
+    await scrapeBloodDonations();
+    const fresh = readCache();
+    if (!fresh) throw new Error('Scrape completed but cache is empty');
+    return res.json({ success: true, data: fresh.data, timestamp: fresh.timestamp });
   } catch (error) {
-    console.error('❌ Error proxying to MDA API:', error);
-    
-    res.status(500).json({
+    console.error('Scrape error:', error);
+    return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      error: error instanceof Error ? error.message : 'Failed to fetch donation data',
       timestamp: new Date().toISOString()
     });
   }
 });
 
-// Health check for this specific route
+// Force an immediate refresh
+router.post('/refresh', async (req, res) => {
+  try {
+    await scrapeBloodDonations();
+    const cache = readCache();
+    res.json({ success: true, count: cache?.data.length ?? 0, timestamp: cache?.timestamp });
+  } catch (error) {
+    console.error('Refresh error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Refresh failed',
+    });
+  }
+});
+
 router.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    service: 'Blood Donations Proxy',
-    timestamp: new Date().toISOString() 
+  const cache = readCache();
+  res.json({
+    status: 'OK',
+    service: 'Blood Donations',
+    cacheTimestamp: cache?.timestamp ?? null,
+    stale: isCacheStale(),
+    timestamp: new Date().toISOString()
   });
 });
 
