@@ -38,17 +38,25 @@ router.post('/', async (req, res) => {
     console.log('📤 Request payload:', JSON.stringify(requestPayload, null, 2));
 
     const data = JSON.stringify(requestPayload);
-    const response = await axios('https://www.mdais.org/umbraco/api/invoker/execute', {
+    // const response = await axios('https://www.mdais.org/umbraco/api/invoker/execute', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'User-Agent': 'Mozilla/5.0 (compatible; BloodDonationsApp/1.0)',
+    //     'Accept': 'application/json, text/plain, */*',
+    //     'Accept-Encoding': 'gzip, deflate, br, zstd',
+    //     'Content-Length': data.length,
+    //     'Origin': 'https://www.mdais.org',
+    //     'Host': 'www.mdais.org',
+    //     'referer': 'https://www.mdais.org/blood-donation',
+    //   },
+    //   data,
+    // });
+
+    const response = await axios('https://mda.yoavi-51d.workers.dev/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (compatible; BloodDonationsApp/1.0)',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Encoding': 'gzip, deflate, br, zstd',
-        'Content-Length': data.length,
-        'Origin': 'https://www.mdais.org',
-        'Host': 'www.mdais.org',
-        'referer': 'https://www.mdais.org/blood-donation',
       },
       data,
     });
