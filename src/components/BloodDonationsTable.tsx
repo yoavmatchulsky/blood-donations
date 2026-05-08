@@ -1,4 +1,5 @@
 import { endOfDay, format, isAfter, isBefore, startOfDay } from "date-fns";
+import { he } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { DonationFilters, type DonationFilterValues } from "./DonationFilters";
 
@@ -162,7 +163,10 @@ export function BloodDonationsTable({ data }: { data: any; }) {
             onClick={() => window.open(item.SchedulingURL, '_blank')}
           >
             <div className="flex justify-between items-center mb-1" dir="rtl">
-              <span className="font-semibold text-gray-800">{format(item.DateDonation, 'dd/MM/yyyy')}</span>
+              <span className="font-semibold text-gray-800">
+                {format(item.DateDonation, 'dd/MM/yyyy')}
+                <span className="text-gray-400 font-normal text-sm mr-1.5">{format(item.DateDonation, 'EEEE', { locale: he })}</span>
+              </span>
               <span className="text-sm text-gray-500">{item.FromHour} - {item.ToHour}</span>
             </div>
             <div className="text-base font-medium text-gray-900 text-right">{item.Name}</div>
@@ -196,7 +200,10 @@ export function BloodDonationsTable({ data }: { data: any; }) {
                 className={`text-right transition-colors hover:bg-red-50/60 cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
                 onClick={() => window.open(item.SchedulingURL, '_blank')}
               >
-                <td className="py-3.5 px-4 text-gray-800 font-medium">{format(item.DateDonation, 'dd/MM/yyyy')}</td>
+                <td className="py-3.5 px-4 text-gray-800 font-medium">
+                  <div>{format(item.DateDonation, 'dd/MM/yyyy')}</div>
+                  <div className="text-xs text-gray-400 font-normal">{format(item.DateDonation, 'EEEE', { locale: he })}</div>
+                </td>
                 <td className="py-3.5 px-4 text-gray-600">{item.FromHour} - {item.ToHour}</td>
                 <td className="py-3.5 px-4 text-gray-600">{item.City} {item.Street} {item.NumHour} {item.AccountType}</td>
                 <td className="py-3.5 px-4 text-gray-800">{item.Name}</td>
