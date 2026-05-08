@@ -64,7 +64,6 @@ export function BloodDonationsTable({ data }: { data: any; }) {
   const totalPages = Math.ceil(filteredAndSortedData.length / PAGE_SIZE);
   const pagedData = filteredAndSortedData.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  // Reset to first page when filters change
   const handleFiltersChange = (newFilters: Partial<DonationFilterValues>) => {
     setFilters(newFilters);
     setPage(0);
@@ -79,16 +78,6 @@ export function BloodDonationsTable({ data }: { data: any; }) {
     }
     setPage(0);
   };
-
-  const colgroup = (
-    <colgroup>
-      <col className="w-[15%]" />
-      <col className="w-[15%]" />
-      <col className="w-[30%]" />
-      <col className="w-[25%]" />
-      <col className="w-[15%]" />
-    </colgroup>
-  );
 
   const statusBar = (
     <div className="bg-gray-50 px-4 py-2 border-t border-gray-100 flex items-center justify-between" dir="rtl">
@@ -116,15 +105,26 @@ export function BloodDonationsTable({ data }: { data: any; }) {
     </div>
   );
 
+  const desktopColgroup = (
+    <colgroup>
+      <col className="w-[15%]" />
+      <col className="w-[15%]" />
+      <col className="w-[30%]" />
+      <col className="w-[25%]" />
+      <col className="w-[15%]" />
+    </colgroup>
+  );
+
   return (
     <div>
       <div className="bg-white rounded-t-2xl shadow-lg border border-gray-100 border-b-0">
         <DonationFilters filters={activeFilters} cities={cities} onChange={handleFiltersChange} />
       </div>
 
-      <div className="sticky top-[85px] z-10">
-        <table className="w-full text-sm table-fixed bg-rose-50 shadow-sm" dir="rtl">
-          {colgroup}
+      {/* Sticky bar: desktop shows table headers + status; mobile shows just status */}
+      <div className="sticky top-[60px] md:top-[85px] z-10">
+        <table className="hidden md:table w-full text-sm table-fixed bg-rose-50 shadow-sm" dir="rtl">
+          {desktopColgroup}
           <thead>
             <tr className="text-gray-700">
               <th
@@ -153,15 +153,47 @@ export function BloodDonationsTable({ data }: { data: any; }) {
         {statusBar}
       </div>
 
-      <div className="bg-white border border-gray-100 border-t-0 shadow-lg">
+      {/* Mobile: card list */}
+      <div className="md:hidden bg-white border border-gray-100 border-t-0 shadow-lg divide-y divide-gray-100">
+        {pagedData.map((item: any) => (
+          <div
+            key={item.id}
+            className="p-4 cursor-pointer hover:bg-red-50/60 active:bg-red-100/60 transition-colors"
+            onClick={() => window.open(item.SchedulingURL, '_blank')}
+          >
+            <div className="flex justify-between items-center mb-1" dir="rtl">
+              <span className="font-semibold text-gray-800">{format(item.DateDonation, 'dd/MM/yyyy')}</span>
+              <span className="text-sm text-gray-500">{item.FromHour} - {item.ToHour}</span>
+            </div>
+            <div className="text-base font-medium text-gray-900 text-right">{item.Name}</div>
+            <div className="text-sm text-gray-500 mt-0.5 text-right">
+              {item.City}{item.Street ? `, ${item.Street}` : ''}{item.NumHour ? ` ${item.NumHour}` : ''}
+            </div>
+            <a
+              href={item.SchedulingURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="mt-3 block text-center bg-red-600 text-white py-2.5 rounded-xl font-medium text-sm hover:bg-red-700 transition-colors no-underline"
+            >
+              קביעת תור
+            </a>
+          </div>
+        ))}
+        <div className="rounded-b-2xl overflow-hidden">
+          {statusBar}
+        </div>
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden md:block bg-white border border-gray-100 border-t-0 shadow-lg">
         <table className="w-full text-sm table-fixed" dir="rtl">
-          {colgroup}
+          {desktopColgroup}
           <tbody className="divide-y divide-gray-100">
             {pagedData.map((item: any, index: number) => (
               <tr
                 key={item.id}
-                className={`text-right transition-colors hover:bg-red-50/60 cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
-                  }`}
+                className={`text-right transition-colors hover:bg-red-50/60 cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
                 onClick={() => window.open(item.SchedulingURL, '_blank')}
               >
                 <td className="py-3.5 px-4 text-gray-800 font-medium">{format(item.DateDonation, 'dd/MM/yyyy')}</td>
@@ -183,7 +215,6 @@ export function BloodDonationsTable({ data }: { data: any; }) {
             ))}
           </tbody>
         </table>
-
         <div className="rounded-b-2xl overflow-hidden">
           {statusBar}
         </div>

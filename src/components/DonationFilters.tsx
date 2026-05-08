@@ -21,31 +21,31 @@ export function DonationFilters({ filters, cities, onChange }: DonationFiltersPr
 
   return (
     <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50" dir="rtl">
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="flex flex-col gap-1">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="flex flex-col gap-1 w-full sm:w-auto">
           <label className="text-xs font-medium text-gray-500">מתאריך</label>
           <input
             type="date"
             value={filters.dateFrom}
             onChange={(e) => update({ dateFrom: e.target.value })}
-            className={inputClasses}
+            className={`${inputClasses} w-full`}
           />
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 w-full sm:w-auto">
           <label className="text-xs font-medium text-gray-500">עד תאריך</label>
           <input
             type="date"
             value={filters.dateTo}
             onChange={(e) => update({ dateTo: e.target.value })}
-            className={inputClasses}
+            className={`${inputClasses} w-full`}
           />
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 w-full sm:w-auto">
           <label className="text-xs font-medium text-gray-500">עיר</label>
           <select
             value={filters.city}
             onChange={(e) => update({ city: e.target.value })}
-            className={`${inputClasses} min-w-[160px]`}
+            className={`${inputClasses} w-full sm:min-w-[160px]`}
           >
             <option value="">כל הערים</option>
             {cities.map((city) => (
@@ -56,7 +56,7 @@ export function DonationFilters({ filters, cities, onChange }: DonationFiltersPr
         {hasActiveFilters && (
           <button
             onClick={() => onChange({ city: '' })}
-            className="text-sm text-red-600 hover:text-red-800 font-medium pb-2 transition-colors cursor-pointer"
+            className="text-sm text-red-600 hover:text-red-800 font-medium sm:pb-2 transition-colors cursor-pointer"
           >
             נקה סינון ✕
           </button>

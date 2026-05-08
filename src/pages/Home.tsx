@@ -9,9 +9,9 @@ export const Home: React.FC = () => {
     <div className="min-h-screen w-full bg-gradient-to-b from-rose-50 to-white" dir="rtl">
       {/* Header */}
       <header className="sticky top-0 z-20 bg-gradient-to-l from-red-700 to-red-600 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-6 flex items-center justify-center gap-3">
-          <span className="text-3xl">🩸</span>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+        <div className="container mx-auto px-4 py-4 md:py-6 flex items-center justify-center gap-3">
+          <span className="text-2xl md:text-3xl">🩸</span>
+          <h1 className="text-xl md:text-3xl font-bold tracking-tight">
             עמדות תרומת דם
           </h1>
         </div>
